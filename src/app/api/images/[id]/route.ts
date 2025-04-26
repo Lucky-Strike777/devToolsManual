@@ -1,25 +1,51 @@
-import { unlink } from 'fs/promises';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
-
   try {
-    // TODO: 데이터베이스에서 이미지 정보 조회
-    // const image = await db.images.findUnique({ where: { id } });
-    
-    // 임시로 파일 이름 생성 (실제로는 데이터베이스에서 가져와야 함)
-    const fileName = `${id}.jpg`; // 실제 구현시에는 DB에서 확장자 포함한 파일명을 가져와야 함
-    
-    // 파일 삭제
-    const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
-    await unlink(filePath);
+    const { id } = params;
 
-    // TODO: 데이터베이스에서 이미지 정보 삭제
-    // await db.images.delete({ where: { id } });
+    // 데이터베이스에서 이미지 정보 조회
+    const { data: image, error: fetchError } = await supabase
+      .from('images')
+      .select('storage_path')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      throw new Error(`Fetch error: ${fetchError.message}`);
+    }
+
+    if (!image) {
+      return new Response(
+        JSON.stringify({ error: '이미지를 찾을 수 없습니다.' }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Supabase Storage에서 파일 삭제
+    const { error: storageError } = await supabase.storage
+      .from('card-images')
+      .remove([image.storage_path]);
+
+    if (storageError) {
+      throw new Error(`Storage error: ${storageError.message}`);
+    }
+
+    // 데이터베이스에서 이미지 정보 삭제
+    const { error: dbError } = await supabase
+      .from('images')
+      .delete()
+      .eq('id', id);
+
+    if (dbError) {
+      throw new Error(`Database error: ${dbError.message}`);
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
