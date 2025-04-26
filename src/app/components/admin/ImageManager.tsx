@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { CardImage, ImageUploadForm } from '../../types/image';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface ImageManagerProps {
@@ -16,7 +15,6 @@ export default function ImageManager({ cardId, isAdmin, initialImages = [] }: Im
     description: '',
     cardId: cardId,
   });
-  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
