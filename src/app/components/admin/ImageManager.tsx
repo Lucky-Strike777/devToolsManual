@@ -106,7 +106,7 @@ export default function ImageManager({ cardId, isAdmin, initialImages = [] }: Im
           <div key={image.id} className="bg-white rounded-lg shadow overflow-hidden">
             <div className="relative h-48">
               <Image
-                src={image.url}
+                src={image.url.replace(/^http:/, 'https:')}
                 alt={image.description}
                 fill
                 className="object-cover"

@@ -34,10 +34,14 @@ export async function POST(request: Request) {
     
     await writeFile(filePath, buffer);
     
+    // 현재 요청의 호스트 가져오기
+    const host = request.headers.get('host') || '';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    
     // 데이터베이스에 저장할 이미지 정보
     const imageData = {
       id: uniqueId,
-      url: `/uploads/${fileName}`,
+      url: `${protocol}://${host}/uploads/${fileName}`,
       description,
       cardId,
       createdAt: new Date(),
