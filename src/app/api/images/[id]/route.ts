@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { unlink } from 'fs/promises';
 import path from 'path';
 
@@ -6,9 +5,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const { id } = params;
+  const { id } = params;
 
+  try {
     // TODO: 데이터베이스에서 이미지 정보 조회
     // const image = await db.images.findUnique({ where: { id } });
     
@@ -22,12 +21,17 @@ export async function DELETE(
     // TODO: 데이터베이스에서 이미지 정보 삭제
     // await db.images.delete({ where: { id } });
 
-    return NextResponse.json({ success: true });
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Delete error:', error);
-    return NextResponse.json(
-      { error: '이미지 삭제 중 오류가 발생했습니다.' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: '이미지 삭제 중 오류가 발생했습니다.' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
     );
   }
 } 

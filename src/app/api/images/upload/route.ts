@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { writeFile } from 'fs/promises';
 import path from 'path';
@@ -11,9 +10,12 @@ export async function POST(request: Request) {
     const cardId = formData.get('cardId') as string;
 
     if (!file || !description || !cardId) {
-      return NextResponse.json(
-        { error: '필수 필드가 누락되었습니다.' },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: '필수 필드가 누락되었습니다.' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
     }
 
@@ -41,15 +43,17 @@ export async function POST(request: Request) {
       createdAt: new Date(),
     };
 
-    // TODO: 데이터베이스에 이미지 정보 저장
-    // 여기에 데이터베이스 저장 로직 추가
-
-    return NextResponse.json(imageData);
+    return new Response(JSON.stringify(imageData), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json(
-      { error: '파일 업로드 중 오류가 발생했습니다.' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: '파일 업로드 중 오류가 발생했습니다.' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
     );
   }
 } 
